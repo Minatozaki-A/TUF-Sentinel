@@ -14,7 +14,7 @@ async def memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                     f'{get_virtual_memory_info()}')
 
 
-app = ApplicationBuilder().token("8675810082:AAERru3Npm6_yTpcadeMdnAazLRyN66icQ8").build()
+app = ApplicationBuilder().token("Token").build()
 
 app.add_handler(CommandHandler("hello", hello))
 app.add_handler(CommandHandler("memory",  memory))
