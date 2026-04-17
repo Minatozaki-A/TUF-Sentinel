@@ -1,1 +1,0 @@
-from psutil import sensors_temperatures, sensors_fans, sensors_battery
