@@ -2,7 +2,7 @@ from psutil import (
     cpu_times, cpu_percent, cpu_times_percent, cpu_count, cpu_stats, cpu_freq,
     virtual_memory, swap_memory,
     disk_partitions, disk_usage, disk_io_counters,
-    pids, Process,
+   # pids, Process,
     sensors_temperatures, sensors_fans, sensors_battery,
     net_io_counters, net_connections, net_if_addrs, net_if_stats,
     users, boot_time,
@@ -53,11 +53,11 @@ def get_disk_io_counters():
 
 
 # process_management.py
-def get_pids():
-    return pids()
-
-def get_process(pid):
-    return Process(pid)
+#def get_pids():
+#    return pids()
+#
+#def get_process(pid):
+#    return Process(pid)
 
 
 # sensors_info.py
