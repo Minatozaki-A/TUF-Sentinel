@@ -6,22 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **TUF-Sentinel** is a Telegram bot for system monitoring, written in Python. It exposes system metrics (CPU, memory, disk, network, processes, sensors, users) via Telegram commands using `psutil`.
 
-The project is in early development: only `/hello` and `/memory` commands are fully implemented. The other service modules (`cpu_info`, `disks_info`, `network_info`, etc.) have psutil imports but no functions yet.
+Only `/hello` and `/memory` commands are fully implemented. The remaining psutil wrappers exist in `services/monitor.py` but have no corresponding Telegram handlers yet.
 
 ## Environment
 
 This project uses [uv](https://docs.astral.sh/uv/) for dependency management and requires **Python >= 3.13**.
 
 ```bash
-# Install dependencies
-uv sync
-
-# Run the bot
-uv run main.py
-
-# Add a dependency
-uv add <package>
+uv sync          # Install dependencies
+uv run main.py   # Run the bot
+uv add <package> # Add a dependency
 ```
+
+There are no tests, no linting configuration, and no CI pipeline.
 
 ## Dependencies
 
@@ -29,38 +26,32 @@ Declared in `pyproject.toml`:
 - `psutil >= 7.2.2` — system and process metrics
 - `python-telegram-bot >= 22.7` — Telegram Bot API wrapper (async)
 
-Transitive (locked in `uv.lock`): `httpx`, `anyio`, `certifi`, `h11`, `httpcore`, `idna`.
-
-## Project Structure
-
-```
-TUF-Sentinel/
-├── main.py                    # Bot entry point: command handlers, app startup
-├── pyproject.toml             # Project metadata and dependencies
-├── uv.lock                    # Locked dependency versions (commit this)
-├── CLAUDE.md                  # This file
-├── README.md                  # Minimal project header
-└── services/                  # System monitoring modules (psutil wrappers)
-    ├── memory_info.py         # IMPLEMENTED: virtual & swap memory
-    ├── cpu_info.py            # Imports only — no functions yet
-    ├── disks_info.py          # Imports only — no functions yet
-    ├── network_info.py        # Imports only — no functions yet
-    ├── process_management.py  # Imports only — no functions yet
-    ├── sensors_info.py        # Imports only — no functions yet
-    ├── users_info.py          # Imports only — no functions yet
-    └── heap_infomation.py     # Stub with side-effecting import (see known issues)
-```
-
 ## Architecture
 
-- `main.py` registers async command handlers on a `telegram.ext.Application` and runs polling.
-- Each Telegram command (`/hello`, `/memory`) maps to an `async def` handler that sends a reply.
-- Service modules in `services/` expose plain Python functions returning formatted strings; handlers call these functions and forward the result to the user.
-- No database, no config file, no web server — pure Telegram polling bot.
+`main.py` registers async command handlers on a `telegram.ext.Application` and runs polling. It currently imports only from `services/monitor.py`.
+
+`services/monitor.py` is the **canonical service module** — a consolidated psutil wrapper with functions grouped by category:
+- **CPU** (6): `get_cpu_times`, `get_cpu_percent`, `get_cpu_times_percent`, `get_cpu_count`, `get_cpu_stats`, `get_cpu_freq`
+- **Memory** (2): `get_virtual_memory`, `get_swap_memory`
+- **Disks** (3): `get_disk_partitions`, `get_disk_usage(path="/")`, `get_disk_io_counters`
+- **Processes** (2): `get_pids`, `get_process(pid)`
+- **Sensors** (3): `get_sensors_temperatures`, `get_sensors_fans`, `get_sensors_battery`
+- **Network** (4): `get_net_io_counters`, `get_net_connections`, `get_net_if_addrs`, `get_net_if_stats`
+- **Users** (2): `get_users`, `get_boot_time`
+
+The other files in `services/` (`cpu_info.py`, `disks_info.py`, `memory_info.py`, etc.) are legacy stubs containing only psutil imports. They are superseded by `monitor.py` and should not be imported.
+
+## Implementing a New Command
+
+1. Add an `async def <name>_handler(update, context)` in `main.py`.
+2. Import the relevant function from `services/monitor.py` and reply with `await update.message.reply_text(result)`.
+3. Register: `app.add_handler(CommandHandler("<command>", <name>_handler))`.
+
+Service functions return psutil namedtuples directly — format the values in the handler, not in the service layer.
 
 ## Bot Token
 
-The bot token is currently hardcoded as the string `"Token"` in `main.py`. **Before running**, replace it with a real token from [@BotFather](https://t.me/BotFather). The recommended approach is to load it from an environment variable or a secrets file excluded by `.gitignore` (the `tokens/` directory is already ignored).
+The token is hardcoded as `"Token"` in `main.py:29`. Replace it with a real token from [@BotFather](https://t.me/BotFather). Load it from an environment variable or a file inside `tokens/` (already `.gitignore`d):
 
 ```python
 import os
@@ -69,28 +60,20 @@ token = os.environ["TELEGRAM_BOT_TOKEN"]
 
 ## Conventions
 
-- **Async handlers**: all Telegram command handlers must be `async def` and accept `(update, context)` as parameters.
-- **Service functions**: return a plain formatted string; let the handler do `await update.message.reply_text(result)`.
-- **No side effects on import**: service modules must only define functions — do not call functions at module level (see `heap_infomation.py` known issue).
-- **psutil usage**: import specific names from `psutil` rather than the whole module, matching the pattern in existing service files.
-
-## Implementing a New Command
-
-1. Add the monitoring function(s) to the appropriate file in `services/`.
-2. Import the function in `main.py`.
-3. Write an `async def <name>_handler(update, context)` that calls the function and replies.
-4. Register the handler: `app.add_handler(CommandHandler("<command>", <name>_handler))`.
+- **Handlers**: must be `async def` accepting `(update, context)`.
+- **Service functions**: return psutil objects or primitives; handlers are responsible for formatting output.
+- **No module-level side effects**: service modules must only define functions, never call them at import time.
+- **psutil imports**: import specific names from `psutil` (not the whole module), following the pattern in `monitor.py`.
 
 ## Known Issues
 
-- **`heap_infomation.py`**: filename has a typo ("infomation") and calls `heap_info()` at import time — this will raise a `NameError` on import since `heap_info` is not defined. Do not import this module until it is fixed.
-- **Hardcoded token**: `main.py` uses the literal string `"Token"` — the bot will not connect until replaced.
-- **Incomplete service modules**: `cpu_info`, `disks_info`, `network_info`, `process_management`, `sensors_info`, `users_info` contain only psutil imports with no implemented functions.
-- **Unused import**: `memory_info.py` imports `logging` but does not use it.
+- **`heap_infomation.py`**: filename typo, imports `heap_info` which does not exist in psutil, and calls it at module level — raises `ImportError` on import. Do not import this file.
+- **Legacy stubs**: `cpu_info.py`, `disks_info.py`, `network_info.py`, `process_management.py`, `sensors_info.py`, `users_info.py`, and `memory_info.py` are superseded by `monitor.py`.
+- **`main.py` unused imports**: `logging`, `pathlib`, and `os` are imported but never used.
 
 ## Git Workflow
 
-- The main development branch is `zoltraak` (on origin).
-- Feature/task branches follow the pattern `claude/<description>-<id>`.
-- Commit messages are in Spanish (established by existing history).
+- Main development branch: `zoltraak` (on origin).
+- Feature branches: `claude/<description>-<id>` pattern.
+- **Commit messages are written in Spanish** (established by existing history).
 - Always commit `uv.lock` alongside `pyproject.toml` changes.
