@@ -59,143 +59,143 @@ def format_cpu(percent, freq, stats) -> str:
     lines = ["CPU"]
 
     if percent == "N/A":
-        lines.append("Uso: N/A")
+        lines.append("Usage: N/A")
     else:
-        lines.append(f"Uso: {int(percent)}% {_percent_emoji(percent)}")
+        lines.append(f"Usage: {int(percent)}% {_percent_emoji(percent)}")
 
     if freq == "N/A":
-        lines.append("Frecuencia: N/A")
+        lines.append("Frequency: N/A")
     else:
         curr_ghz = freq.current / 1000 if freq.current > 1000 else freq.current
         max_ghz = freq.max / 1000 if freq.max > 1000 else freq.max
-        lines.append(f"Frecuencia: {curr_ghz:.1f} GHz (Máx: {max_ghz:.1f} GHz)")
+        lines.append(f"Frequency: {curr_ghz:.1f} GHz (Max: {max_ghz:.1f} GHz)")
 
     if stats == "N/A":
-        lines.append("Estadísticas: N/A")
+        lines.append("Stats: N/A")
     else:
-        lines.append(f"Cambios de contexto: {stats.ctx_switches}")
-        lines.append(f"Interrupciones: {stats.interrupts}")
-        lines.append(f"Interrupciones soft: {stats.soft_interrupts}")
-        lines.append(f"Llamadas al sistema: {stats.syscalls}")
+        lines.append(f"Context switches: {stats.ctx_switches}")
+        lines.append(f"Interrupts: {stats.interrupts}")
+        lines.append(f"Soft interrupts: {stats.soft_interrupts}")
+        lines.append(f"Syscalls: {stats.syscalls}")
 
     return "\n".join(lines)
 
 
 def format_memory(virtual, swap) -> str:
-    lines = ["Memoria"]
+    lines = ["Memory"]
 
     lines.append("RAM")
     if virtual == "N/A":
         lines.append("  N/A")
     else:
         lines.append(f"  Total: {_bytes_to_human(virtual.total)}")
-        lines.append(f"  Usada: {_bytes_to_human(virtual.used)} — {int(virtual.percent)}% {_percent_emoji(virtual.percent)}")
-        lines.append(f"  Libre: {_bytes_to_human(virtual.free)}")
-        lines.append(f"  Disponible: {_bytes_to_human(virtual.available)}")
-        lines.append(f"  Caché: {_bytes_to_human(virtual.cached)}")
-        lines.append(f"  Búferes: {_bytes_to_human(virtual.buffers)}")
+        lines.append(f"  Used: {_bytes_to_human(virtual.used)} — {int(virtual.percent)}% {_percent_emoji(virtual.percent)}")
+        lines.append(f"  Free: {_bytes_to_human(virtual.free)}")
+        lines.append(f"  Available: {_bytes_to_human(virtual.available)}")
+        lines.append(f"  Cache: {_bytes_to_human(virtual.cached)}")
+        lines.append(f"  Buffers: {_bytes_to_human(virtual.buffers)}")
 
     lines.append("Swap")
     if swap == "N/A":
         lines.append("  N/A")
     else:
         lines.append(f"  Total: {_bytes_to_human(swap.total)}")
-        lines.append(f"  Usada: {_bytes_to_human(swap.used)} — {int(swap.percent)}% {_percent_emoji(swap.percent)}")
-        lines.append(f"  Libre: {_bytes_to_human(swap.free)}")
+        lines.append(f"  Used: {_bytes_to_human(swap.used)} — {int(swap.percent)}% {_percent_emoji(swap.percent)}")
+        lines.append(f"  Free: {_bytes_to_human(swap.free)}")
 
     return "\n".join(lines)
 
 
 def format_disks(partitions, usage, io_counters) -> str:
-    lines = ["Discos"]
+    lines = ["Disks"]
 
-    lines.append("Particiones")
+    lines.append("Partitions")
     if partitions == "N/A":
         lines.append("  N/A")
     elif not partitions:
-        lines.append("  Sin particiones detectadas")
+        lines.append("  No partitions found")
     else:
         for p in partitions:
             lines.append(f"  {p.device} → {p.mountpoint} ({p.fstype})")
 
-    lines.append("Uso (/)")
+    lines.append("Usage (/)")
     if usage == "N/A":
         lines.append("  N/A")
     else:
         lines.append(f"  Total: {_bytes_to_human(usage.total)}")
-        lines.append(f"  Usada: {_bytes_to_human(usage.used)} — {int(usage.percent)}% {_percent_emoji(usage.percent)}")
-        lines.append(f"  Libre: {_bytes_to_human(usage.free)}")
+        lines.append(f"  Used: {_bytes_to_human(usage.used)} — {int(usage.percent)}% {_percent_emoji(usage.percent)}")
+        lines.append(f"  Free: {_bytes_to_human(usage.free)}")
 
-    lines.append("E/S")
+    lines.append("I/O")
     if io_counters is None or io_counters == "N/A":
         lines.append("  N/A")
     else:
-        lines.append(f"  Lecturas: {io_counters.read_count} | Datos leídos: {_bytes_to_human(io_counters.read_bytes)}")
-        lines.append(f"  Escrituras: {io_counters.write_count} | Datos escritos: {_bytes_to_human(io_counters.write_bytes)}")
+        lines.append(f"  Reads: {io_counters.read_count} | Data read: {_bytes_to_human(io_counters.read_bytes)}")
+        lines.append(f"  Writes: {io_counters.write_count} | Data written: {_bytes_to_human(io_counters.write_bytes)}")
 
     return "\n".join(lines)
 
 
 def format_sensors(temperatures, fans, battery) -> str:
-    lines = ["Sensores"]
+    lines = ["Sensors"]
 
-    lines.append("Temperaturas")
+    lines.append("Temperatures")
     if temperatures == "N/A":
         lines.append("  N/A")
     elif not temperatures:
-        lines.append("  Sin datos de temperatura")
+        lines.append("  No temperature data")
     else:
         for name, readings in temperatures.items():
             for r in readings:
                 label = r.label if r.label else name
-                crit = f" (crítico: {r.critical}°C)" if r.critical else ""
+                crit = f" (critical: {r.critical}°C)" if r.critical else ""
                 lines.append(f"  {name} — {label}: {r.current:.1f}°C{crit}")
 
-    lines.append("Ventiladores")
+    lines.append("Fans")
     if fans == "N/A":
         lines.append("  N/A")
     elif not fans:
-        lines.append("  Sin ventiladores detectados")
+        lines.append("  No fans detected")
     else:
         for name, readings in fans.items():
             for r in readings:
                 label = r.label if r.label else name
                 lines.append(f"  {name} — {label}: {r.current} RPM")
 
-    lines.append("Batería")
+    lines.append("Battery")
     if battery is None:
-        lines.append("  Sin batería")
+        lines.append("  No battery")
     elif battery == "N/A":
         lines.append("  N/A")
     else:
         if battery.secsleft == -1:
-            tiempo = "Calculando..."
+            time_left = "Calculating..."
         else:
             h, rem = divmod(int(battery.secsleft), 3600)
             m, _ = divmod(rem, 60)
-            tiempo = f"{h}h {m}m"
-        lines.append(f"  Nivel: {int(battery.percent)}% {_percent_emoji(battery.percent)}")
-        lines.append(f"  Estado: {'Conectado' if battery.power_plugged else 'Batería'}")
-        lines.append(f"  Tiempo restante: {tiempo}")
+            time_left = f"{h}h {m}m"
+        lines.append(f"  Level: {int(battery.percent)}% {_percent_emoji(battery.percent)}")
+        lines.append(f"  Status: {'Plugged in' if battery.power_plugged else 'On battery'}")
+        lines.append(f"  Time remaining: {time_left}")
 
     return "\n".join(lines)
 
 
 def format_network(io_counters, connections, if_stats) -> str:
-    lines = ["Red"]
+    lines = ["Network"]
 
-    lines.append("E/S")
+    lines.append("I/O")
     if io_counters is None or io_counters == "N/A":
         lines.append("  N/A")
     else:
-        lines.append(f"  Enviado: {_bytes_to_human(io_counters.bytes_sent)} | Recibido: {_bytes_to_human(io_counters.bytes_recv)}")
-        lines.append(f"  Paquetes enviados: {io_counters.packets_sent} | Paquetes recibidos: {io_counters.packets_recv}")
-        lines.append(f"  Errores: {io_counters.errin} entrada / {io_counters.errout} salida")
+        lines.append(f"  Sent: {_bytes_to_human(io_counters.bytes_sent)} | Received: {_bytes_to_human(io_counters.bytes_recv)}")
+        lines.append(f"  Packets sent: {io_counters.packets_sent} | Packets received: {io_counters.packets_recv}")
+        lines.append(f"  Errors: {io_counters.errin} in / {io_counters.errout} out")
 
     if connections == "N/A":
-        lines.append("Conexiones: N/A")
+        lines.append("Connections: N/A")
     else:
-        lines.append(f"Conexiones: {len(connections)}")
+        lines.append(f"Connections: {len(connections)}")
         status_counts = {}
         for c in connections:
             status_counts[c.status] = status_counts.get(c.status, 0) + 1
@@ -206,30 +206,30 @@ def format_network(io_counters, connections, if_stats) -> str:
     if if_stats == "N/A":
         lines.append("  N/A")
     elif not if_stats:
-        lines.append("  Sin interfaces detectadas")
+        lines.append("  No interfaces detected")
     else:
         for name, nic in if_stats.items():
-            estado = "activa" if nic.isup else "inactiva"
-            lines.append(f"  {name}: {estado}, {nic.speed} Mbps")
+            state = "up" if nic.isup else "down"
+            lines.append(f"  {name}: {state}, {nic.speed} Mbps")
 
     return "\n".join(lines)
 
 
 def format_users(users, boot_time) -> str:
-    lines = ["Usuarios"]
+    lines = ["Users"]
 
     if users == "N/A":
         lines.append("  N/A")
     elif not users:
-        lines.append("  Sin usuarios conectados")
+        lines.append("  No active users")
     else:
         for u in users:
             host = f" ({u.host})" if u.host else " (local)"
             lines.append(f"  {u.name} — {u.terminal}{host}")
 
     if boot_time == "N/A":
-        lines.append("Tiempo activo: N/A")
+        lines.append("Uptime: N/A")
     else:
-        lines.append(f"Tiempo activo: {get_formatted_uptime(boot_time)}")
+        lines.append(f"Uptime: {get_formatted_uptime(boot_time)}")
 
     return "\n".join(lines)
