@@ -46,6 +46,20 @@ async def sensors_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         format_sensors(sensors_temperatures, sensors_fans, sensors_battery)
     )
 
+async def network_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    connections = get_net_connections()
+    if_stats = get_net_if_stats()
+    await update.message.reply_text(
+        format_network(connections, if_stats)
+    )
+
+async def users_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    active_users = get_users()
+    system_boot_time = get_boot_time()
+    await update.message.reply_text(
+        format_users(active_users, system_boot_time)
+    )
+
 
 app = ApplicationBuilder().token(token).build()
 
@@ -55,6 +69,8 @@ app.add_handler(CommandHandler("memory", memory_info, filters=only_me))
 app.add_handler(CommandHandler("cpu", cpu_info, filters=only_me))
 app.add_handler(CommandHandler("disks", disks_info, filters=only_me))
 app.add_handler(CommandHandler("sensors", sensors_info, filters=only_me))
+app.add_handler(CommandHandler("network", network_info, filters=only_me))
+app.add_handler(CommandHandler("users", users_info, filters=only_me))
 
 app.run_polling()
 
