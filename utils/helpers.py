@@ -181,16 +181,8 @@ def format_sensors(temperatures, fans, battery) -> str:
     return "\n".join(lines)
 
 
-def format_network(io_counters, connections, if_stats) -> str:
+def format_network(connections, if_stats) -> str:
     lines = ["Network"]
-
-    lines.append("I/O")
-    if io_counters is None or io_counters == "N/A":
-        lines.append("  N/A")
-    else:
-        lines.append(f"  Sent: {_bytes_to_human(io_counters.bytes_sent)} | Received: {_bytes_to_human(io_counters.bytes_recv)}")
-        lines.append(f"  Packets sent: {io_counters.packets_sent} | Packets received: {io_counters.packets_recv}")
-        lines.append(f"  Errors: {io_counters.errin} in / {io_counters.errout} out")
 
     if connections == "N/A":
         lines.append("Connections: N/A")

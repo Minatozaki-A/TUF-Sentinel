@@ -14,21 +14,21 @@ def get_cpu_percent():# Return a float representing the current system-wide CPU 
     try:
         return cpu_percent()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener cpu_percent")
+        logger.error("Access denied getting cpu_percent")
         return "N/A"
 
 def get_cpu_stats():# Return various CPU statistics as a named tuple
     try:
         return cpu_stats()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener cpu_stats")
+        logger.error("Access denied getting cpu_stats")
         return "N/A"
 
 def get_cpu_freq():# Return CPU frequency
     try:
         return cpu_freq()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener cpu_freq")
+        logger.error("Access denied getting cpu_freq")
         return "N/A"
 
 #memory_info
@@ -36,7 +36,7 @@ def get_virtual_memory():# Return statistics about system memory usage
     try:
         return virtual_memory()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener virtual_memory")
+        logger.error("Access denied getting virtual_memory")
         return "N/A"
 
 
@@ -44,7 +44,7 @@ def get_swap_memory():# Return system swap memory statistics
     try:
         return swap_memory()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener swap_memory")
+        logger.error("Access denied getting swap_memory")
         return "N/A"
 
 # disks_info.py
@@ -54,21 +54,21 @@ def get_disk_partitions():
     try:
         return disk_partitions()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener disk_partitions")
+        logger.error("Access denied getting disk_partitions")
         return "N/A"
 
 def get_disk_usage(path: str):# Return system-wide disk I/O statistics
     try:
         return disk_usage(path)
     except AccessDenied:
-        logger.error("Acceso denegado al obtener disk_usage(path=%s)", path)
+        logger.error("Access denied getting disk_usage(path=%s)", path)
         return "N/A"
 
 def get_disk_io_counters():# Return system-wide disk I/O statistics
     try:
         return disk_io_counters()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener disk_io_counters")
+        logger.error("Access denied getting disk_io_counters")
         return "N/A"
 
 # sensors_info
@@ -76,14 +76,14 @@ def get_sensors_temperatures():# Return hardware temperatures.
     try:
         return sensors_temperatures()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener sensors_temperatures")
+        logger.error("Access denied getting sensors_temperatures")
         return "N/A"
 
 def get_sensors_fans():# Return hardware fans speed
     try:
         return sensors_fans()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener sensors_fans")
+        logger.error("Access denied getting sensors_fans")
         return "N/A"
 
 
@@ -91,7 +91,7 @@ def get_sensors_battery():# Return hardware fans speed.
     try:
         return sensors_battery() # power_plugged: True if the AC power cable is connected, False if not or None
     except AccessDenied:
-        logger.error("Acceso denegado al obtener sensors_battery")
+        logger.error("Access denied getting sensors_battery")
         return "N/A"
 
 # network_info
@@ -99,14 +99,14 @@ def get_net_connections():# Return system-wide socket connections as a list of n
     try:
         return net_connections()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener net_connections")
+        logger.error("Access denied getting net_connections")
         return "N/A"
 
 def get_net_if_stats():# Return information about each NIC (network interface card) installed on the system
     try:
         return net_if_stats()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener net_if_stats")
+        logger.error("Access denied getting net_if_stats")
         return "N/A"
 
 # users_info.py
@@ -114,12 +114,12 @@ def get_users():# Return users currently connected
     try:
         return users()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener users")
+        logger.error("Access denied getting users")
         return "N/A"
 
 def get_boot_time():# Return the system boot time expressed in seconds since the epoch (seconds since January 1, 1970, at midnight UTC)
     try:
         return boot_time()
     except AccessDenied:
-        logger.error("Acceso denegado al obtener boot_time")
+        logger.error("Access denied getting boot_time")
         return "N/A"
