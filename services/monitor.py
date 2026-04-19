@@ -57,7 +57,7 @@ def get_disk_partitions():
         logger.error("Acceso denegado al obtener disk_partitions")
         return "N/A"
 
-def get_disk_usage(path="/"):# Return system-wide disk I/O statistics
+def get_disk_usage(path: str):# Return system-wide disk I/O statistics
     try:
         return disk_usage(path)
     except AccessDenied:
