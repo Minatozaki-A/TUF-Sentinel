@@ -33,6 +33,18 @@ def get_cpu_freq():# Return CPU frequency
         logger.error("Access denied getting cpu_freq")
         return "N/A"
 
+
+def information_cpu():
+    try:
+        percent_info = cpu_percent()
+        freq_info = cpu_freq()
+        stats_info = cpu_stats()
+    except AccessDenied:
+        logger.error("Access denied getting cpu_percent, cpu_freq or cpu_stats")
+        percent_info, freq_info, stats_info = "N/A", "N/A", "N/A"
+    return format_cpu(percent_info, freq_info, stats_info)
+
+
 #memory_info
 def get_virtual_memory():# Return statistics about system memory usage
     try:
@@ -48,6 +60,15 @@ def get_swap_memory():# Return system swap memory statistics
     except AccessDenied:
         logger.error("Access denied getting swap_memory")
         return "N/A"
+
+def information_memory():
+    try:
+        vm_info = virtual_memory()
+        swap_info = swap_memory()
+    except AccessDenied:
+        logger.error("Access denied getting virtual_memory or swap_memory")
+        vm_info, swap_info = "N/A", "N/A"
+    return format_memory(vm_info, swap_info)
 
 # disks_info.py
 def get_disk_partitions():
@@ -73,6 +94,17 @@ def get_disk_io_counters():# Return system-wide disk I/O statistics
         logger.error("Access denied getting disk_io_counters")
         return "N/A"
 
+
+def information_disk(path: str):
+    try:
+        partitions_info = disk_partitions()
+        usage_info = disk_usage(path)
+        io_counters_info = disk_io_counters()
+    except AccessDenied:
+        logger.error("Access denied getting disk_partitions, disk_usage(path=%s)", path)
+        partitions_info, usage_info, io_counters_info = "N/A", "N/A", "N/A"
+    return format_disks(partitions_info, usage_info, io_counters_info)
+
 # sensors_info
 def get_sensors_temperatures():# Return hardware temperatures.
     try:
@@ -96,6 +128,17 @@ def get_sensors_battery():# Return hardware fans speed.
         logger.error("Access denied getting sensors_battery")
         return "N/A"
 
+
+def information_sensors():
+    try:
+        temperatures_info = sensors_temperatures()
+        fans_info = sensors_fans()
+        battery_info = sensors_battery()
+    except AccessDenied:
+        logger.error("Access denied getting sensors_temperatures, sensors_fans or sensors_battery")
+        temperatures_info, fans_info, battery_info = "N/A", "N/A", "N/A"
+    return format_sensors(temperatures_info, fans_info, battery_info)
+
 # network_info
 def get_net_connections():# Return system-wide socket connections as a list of named tuples
     try:
@@ -111,6 +154,15 @@ def get_net_if_stats():# Return information about each NIC (network interface ca
         logger.error("Access denied getting net_if_stats")
         return "N/A"
 
+def information_network():
+    try:
+        connections_info = net_connections()
+        interfaces_info = net_if_stats()
+    except AccessDenied:
+        logger.error("Access denied getting net_connections or net_if_stats")
+        connections_info, interfaces_info = "N/A", "N/A"
+    return format_network(connections_info, interfaces_info)
+
 # users_info.py
 def get_users():# Return users currently connected
     try:
@@ -125,3 +177,12 @@ def get_boot_time():# Return the system boot time expressed in seconds since the
     except AccessDenied:
         logger.error("Access denied getting boot_time")
         return "N/A"
+
+def information_users():
+    try:
+        users_info = users()
+        boot_time_info = boot_time()
+    except AccessDenied:
+        logger.error("Access denied getting users or boot_time")
+        users_info, boot_time_info = "N/A", "N/A"
+    return format_users(users_info, boot_time_info)
