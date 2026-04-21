@@ -11,6 +11,15 @@ import logging
 from utils.helpers import *
 
 logger = logging.getLogger(__name__)
+DATA_UNAVAILABLE = "N/A"
+
+def _safe_call_to_psutil(func, label: str):
+    try:
+        return func()
+    except AccessDenied:
+        logger.error("Access denied getting %s", label)
+        return DATA_UNAVAILABLE
+
 # cpu_info
 def get_cpu_percent():# Return a float representing the current system-wide CPU utilization as a percentage.
     try:
@@ -35,13 +44,9 @@ def get_cpu_freq():# Return CPU frequency
 
 
 def information_cpu():
-    try:
-        percent_info = cpu_percent()
-        freq_info = cpu_freq()
-        stats_info = cpu_stats()
-    except AccessDenied:
-        logger.error("Access denied getting cpu_percent, cpu_freq or cpu_stats")
-        percent_info, freq_info, stats_info = "N/A", "N/A", "N/A"
+    percent_info = _safe_call_to_psutil(cpu_percent, "cpu_percent")
+    freq_info = _safe_call_to_psutil(cpu_freq, "cpu_freq")
+    stats_info = _safe_call_to_psutil(cpu_stats, "cpu_stats")
     return format_cpu(percent_info, freq_info, stats_info)
 
 
@@ -62,12 +67,8 @@ def get_swap_memory():# Return system swap memory statistics
         return "N/A"
 
 def information_memory():
-    try:
-        vm_info = virtual_memory()
-        swap_info = swap_memory()
-    except AccessDenied:
-        logger.error("Access denied getting virtual_memory or swap_memory")
-        vm_info, swap_info = "N/A", "N/A"
+    vm_info = _safe_call_to_psutil(virtual_memory, "virtual_memory")
+    swap_info = _safe_call_to_psutil(swap_memory, "swap_memory")
     return format_memory(vm_info, swap_info)
 
 # disks_info.py
@@ -96,13 +97,9 @@ def get_disk_io_counters():# Return system-wide disk I/O statistics
 
 
 def information_disk(path: str):
-    try:
-        partitions_info = disk_partitions()
-        usage_info = disk_usage(path)
-        io_counters_info = disk_io_counters()
-    except AccessDenied:
-        logger.error("Access denied getting disk_partitions, disk_usage(path=%s)", path)
-        partitions_info, usage_info, io_counters_info = "N/A", "N/A", "N/A"
+    partitions_info = _safe_call_to_psutil(disk_partitions, "disk_partitions")
+    usage_info = get_disk_usage(path)
+    io_counters_info = _safe_call_to_psutil(disk_io_counters, "disk_io_counters")
     return format_disks(partitions_info, usage_info, io_counters_info)
 
 # sensors_info
@@ -130,13 +127,9 @@ def get_sensors_battery():# Return hardware fans speed.
 
 
 def information_sensors():
-    try:
-        temperatures_info = sensors_temperatures()
-        fans_info = sensors_fans()
-        battery_info = sensors_battery()
-    except AccessDenied:
-        logger.error("Access denied getting sensors_temperatures, sensors_fans or sensors_battery")
-        temperatures_info, fans_info, battery_info = "N/A", "N/A", "N/A"
+    temperatures_info = _safe_call_to_psutil(sensors_temperatures, "sensors_temperatures")
+    fans_info = _safe_call_to_psutil(sensors_fans, "sensors_fans")
+    battery_info = _safe_call_to_psutil(sensors_battery, "sensors_battery")
     return format_sensors(temperatures_info, fans_info, battery_info)
 
 # network_info
