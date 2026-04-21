@@ -4,12 +4,14 @@ from psutil import (
     disk_partitions, disk_usage, disk_io_counters,  # Disks_info
     sensors_temperatures, sensors_fans, sensors_battery,  # Sensors_info
     net_connections, net_if_stats,  # Network_info
-    users, boot_time, AccessDenied,  # Users_info
+    users, boot_time,# Users_info
+    AccessDenied # Exception
 )
 import logging
+from utils.helpers import *
 
 logger = logging.getLogger(__name__)
-
+# cpu_info
 def get_cpu_percent():# Return a float representing the current system-wide CPU utilization as a percentage.
     try:
         return cpu_percent()
