@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler
 import os
 from utils.helpers import *
-from services.monitor import *
+from services.monitor import information_cpu, information_memory, information_disk, information_sensors, information_network, information_users
 
 load_dotenv()
 token = os.getenv("TOKEN")
@@ -15,49 +15,35 @@ only_me = filters.User(user_id=id_user)
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(f'Hello {update.effective_user.first_name}')
 
-async def memory_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    vm = get_virtual_memory()
-    swap = get_swap_memory()
+async def cpu_info(update: Update, context: ContextTypes.DEFAULT_TYPE)-> None:
     await update.message.reply_text(
-        format_memory(vm, swap)
+        information_cpu()
     )
 
-async def cpu_info(update: Update, context: ContextTypes.DEFAULT_TYPE)-> None:
-    cpu_percent = get_cpu_percent()
-    cpu_freq = get_cpu_freq()
-    cpu_stats = get_cpu_stats()
+async def memory_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        format_cpu(cpu_percent, cpu_freq, cpu_stats)
+        information_memory()
     )
+
 
 async def disks_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    disks_partitions = get_disk_partitions()
-    disk_usage = get_disk_usage("/")
-    disks_io_counters = get_disk_io_counters()
     await update.message.reply_text(
-        format_disks(disks_partitions, disk_usage, disks_io_counters)
+        information_disk("/")
     )
 
 async def sensors_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    sensors_temperatures = get_sensors_temperatures()
-    sensors_fans = get_sensors_fans()
-    sensors_battery = get_sensors_battery()
     await update.message.reply_text(
-        format_sensors(sensors_temperatures, sensors_fans, sensors_battery)
+        information_sensors()
     )
 
 async def network_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    connections = get_net_connections()
-    if_stats = get_net_if_stats()
     await update.message.reply_text(
-        format_network(connections, if_stats)
+        information_network()
     )
 
 async def users_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    active_users = get_users()
-    system_boot_time = get_boot_time()
     await update.message.reply_text(
-        format_users(active_users, system_boot_time)
+        information_users()
     )
 
 
