@@ -148,12 +148,8 @@ def get_net_if_stats():# Return information about each NIC (network interface ca
         return "N/A"
 
 def information_network():
-    try:
-        connections_info = net_connections()
-        interfaces_info = net_if_stats()
-    except AccessDenied:
-        logger.error("Access denied getting net_connections or net_if_stats")
-        connections_info, interfaces_info = "N/A", "N/A"
+    connections_info =_safe_call_to_psutil( net_connections, "net_connections")
+    interfaces_info = _safe_call_to_psutil( net_if_stats, "net_if_stats")
     return format_network(connections_info, interfaces_info)
 
 # users_info.py
@@ -172,10 +168,6 @@ def get_boot_time():# Return the system boot time expressed in seconds since the
         return "N/A"
 
 def information_users():
-    try:
-        users_info = users()
-        boot_time_info = boot_time()
-    except AccessDenied:
-        logger.error("Access denied getting users or boot_time")
-        users_info, boot_time_info = "N/A", "N/A"
+    users_info = _safe_call_to_psutil(users, "users")
+    boot_time_info = _safe_call_to_psutil(boot_time, "boot_time")
     return format_users(users_info, boot_time_info)
