@@ -163,7 +163,7 @@ def format_sensors(temperatures, fans, battery) -> str:
                 lines.append(f"  {name} — {label}: {r.current} RPM")
 
     lines.append("Battery")
-    if battery is None:
+    if battery is None: # 169 a 179, pendientes de revision
         lines.append("  No battery")
     elif battery == "N/A":
         lines.append("  N/A")
