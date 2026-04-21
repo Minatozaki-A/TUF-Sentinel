@@ -3,9 +3,11 @@ from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler
 import os
-from utils.helpers import *
 from services.monitor import information_cpu, information_memory, information_disk, information_sensors, information_network, information_users
 
+logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s  %(levelname)-8s  %(message)s",
+                        datefmt="%H:%M:%S")
 load_dotenv()
 token = os.getenv("TOKEN")
 id_user = int(os.getenv("USER_ID"))
@@ -59,7 +61,3 @@ app.add_handler(CommandHandler("network", network_info, filters=only_me))
 app.add_handler(CommandHandler("users", users_info, filters=only_me))
 
 app.run_polling()
-
-
-
-
