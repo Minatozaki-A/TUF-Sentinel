@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler
 import os
-from services.monitor import information_cpu, information_memory, information_disk, information_sensors, information_network, information_users
+from services.monitor import collect_cpu_report, collect_memory_report, collect_disk_report, collect_sensors_report, collect_network_report, collect_users_report
 
 logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s  %(levelname)-8s  %(message)s",
@@ -19,33 +19,33 @@ async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def cpu_info(update: Update, context: ContextTypes.DEFAULT_TYPE)-> None:
     await update.message.reply_text(
-        information_cpu()
+        collect_cpu_report()
     )
 
 async def memory_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        information_memory()
+        collect_memory_report()
     )
 
 
 async def disks_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        information_disk("/")
+        collect_disk_report("/")
     )
 
 async def sensors_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        information_sensors()
+        collect_sensors_report()
     )
 
 async def network_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        information_network()
+        collect_network_report()
     )
 
 async def users_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        information_users()
+        collect_users_report()
     )
 
 
