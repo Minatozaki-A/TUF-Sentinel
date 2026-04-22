@@ -1,3 +1,5 @@
+import logging
+from utils.helpers import *
 from psutil import (
     cpu_percent, cpu_stats, cpu_freq,  # cpu_info
     virtual_memory, swap_memory,  # memory_info (RAM)
@@ -7,8 +9,6 @@ from psutil import (
     users, boot_time,# Users_info
     AccessDenied # Exception
 )
-import logging
-from utils.helpers import *
 
 logger = logging.getLogger(__name__)
 DATA_UNAVAILABLE = "N/A"
@@ -20,154 +20,114 @@ def _safe_call_to_psutil(func, label: str):
         logger.error("Access denied getting %s", label)
         return DATA_UNAVAILABLE
 
+
 # cpu_info
-def get_cpu_percent():# Return a float representing the current system-wide CPU utilization as a percentage.
+def get_cpu_utilization():
     try:
         return cpu_percent()
     except AccessDenied:
         logger.error("Access denied getting cpu_percent")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def get_cpu_stats():# Return various CPU statistics as a named tuple
+def get_cpu_statistics():
     try:
         return cpu_stats()
     except AccessDenied:
         logger.error("Access denied getting cpu_stats")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def get_cpu_freq():# Return CPU frequency
+def get_cpu_frequency():
     try:
         return cpu_freq()
     except AccessDenied:
         logger.error("Access denied getting cpu_freq")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-
-def information_cpu():
-    percent_info = _safe_call_to_psutil(cpu_percent, "cpu_percent")
-    freq_info = _safe_call_to_psutil(cpu_freq, "cpu_freq")
-    stats_info = _safe_call_to_psutil(cpu_stats, "cpu_stats")
-    return format_cpu(percent_info, freq_info, stats_info)
+def collect_cpu_report():
+    cpu_usage_percentage = _safe_call_to_psutil(cpu_percent, "cpu_percent")
+    cpu_clock_frequency = _safe_call_to_psutil(cpu_freq, "cpu_freq")
+    cpu_performance_counters = _safe_call_to_psutil(cpu_stats, "cpu_stats")
+    return format_cpu(cpu_usage_percentage, cpu_clock_frequency, cpu_performance_counters)
 
 
 #memory_info
-def get_virtual_memory():# Return statistics about system memory usage
+def get_ram_usage():
     try:
         return virtual_memory()
     except AccessDenied:
         logger.error("Access denied getting virtual_memory")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
+def collect_memory_report():
+    physical_memory_stats = _safe_call_to_psutil(virtual_memory, "virtual_memory")
+    swap_space_stats = _safe_call_to_psutil(swap_memory, "swap_memory")
+    return format_memory(physical_memory_stats, swap_space_stats)
 
-def get_swap_memory():# Return system swap memory statistics
-    try:
-        return swap_memory()
-    except AccessDenied:
-        logger.error("Access denied getting swap_memory")
-        return "N/A"
-
-def information_memory():
-    vm_info = _safe_call_to_psutil(virtual_memory, "virtual_memory")
-    swap_info = _safe_call_to_psutil(swap_memory, "swap_memory")
-    return format_memory(vm_info, swap_info)
 
 # disks_info.py
-def get_disk_partitions():
-# Return all mounted disk partitions as a list of named tuples including device, mount point and filesystem type,
-# similarly to "df" command on UNIX. If all parameter is False it tries to distinguish and return physical devices only
+def get_mounted_partitions():
     try:
         return disk_partitions()
     except AccessDenied:
         logger.error("Access denied getting disk_partitions")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def get_disk_usage(path: str):# Return system-wide disk I/O statistics
+def get_disk_space_usage(path: str):
     try:
         return disk_usage(path)
     except AccessDenied:
         logger.error("Access denied getting disk_usage(path=%s)", path)
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def get_disk_io_counters():# Return system-wide disk I/O statistics
-    try:
-        return disk_io_counters()
-    except AccessDenied:
-        logger.error("Access denied getting disk_io_counters")
-        return "N/A"
-
-
-def information_disk(path: str):
-    partitions_info = _safe_call_to_psutil(disk_partitions, "disk_partitions")
-    usage_info = get_disk_usage(path)
-    io_counters_info = _safe_call_to_psutil(disk_io_counters, "disk_io_counters")
-    return format_disks(partitions_info, usage_info, io_counters_info)
+def collect_disk_report(path: str):
+    disk_mount_points = _safe_call_to_psutil(disk_partitions, "disk_partitions")
+    disk_space_at_path = get_disk_space_usage(path)
+    disk_read_write_counters = _safe_call_to_psutil(disk_io_counters, "disk_io_counters")
+    return format_disks(disk_mount_points, disk_space_at_path, disk_read_write_counters)
 
 # sensors_info
-def get_sensors_temperatures():# Return hardware temperatures.
+def get_hardware_temperatures():
     try:
         return sensors_temperatures()
     except AccessDenied:
         logger.error("Access denied getting sensors_temperatures")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def get_sensors_fans():# Return hardware fans speed
-    try:
-        return sensors_fans()
-    except AccessDenied:
-        logger.error("Access denied getting sensors_fans")
-        return "N/A"
-
-
-def get_sensors_battery():# Return hardware fans speed.
-    try:
-        return sensors_battery() # power_plugged: True if the AC power cable is connected, False if not or None
-    except AccessDenied:
-        logger.error("Access denied getting sensors_battery")
-        return "N/A"
-
-
-def information_sensors():
-    temperatures_info = _safe_call_to_psutil(sensors_temperatures, "sensors_temperatures")
-    fans_info = _safe_call_to_psutil(sensors_fans, "sensors_fans")
-    battery_info = _safe_call_to_psutil(sensors_battery, "sensors_battery")
-    return format_sensors(temperatures_info, fans_info, battery_info)
+def collect_sensors_report():
+    component_temperatures = _safe_call_to_psutil(sensors_temperatures, "sensors_temperatures")
+    cooling_fan_speeds = _safe_call_to_psutil(sensors_fans, "sensors_fans")
+    battery_charge_info = _safe_call_to_psutil(sensors_battery, "sensors_battery")
+    return format_sensors(component_temperatures, cooling_fan_speeds, battery_charge_info)
 
 # network_info
-def get_net_connections():# Return system-wide socket connections as a list of named tuples
+def get_network_connections():
     try:
         return net_connections()
     except AccessDenied:
         logger.error("Access denied getting net_connections")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def get_net_if_stats():# Return information about each NIC (network interface card) installed on the system
+def get_network_interface_stats():
     try:
         return net_if_stats()
     except AccessDenied:
         logger.error("Access denied getting net_if_stats")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def information_network():
-    connections_info =_safe_call_to_psutil( net_connections, "net_connections")
-    interfaces_info = _safe_call_to_psutil( net_if_stats, "net_if_stats")
-    return format_network(connections_info, interfaces_info)
+def collect_network_report():
+    active_socket_connections = _safe_call_to_psutil(net_connections, "net_connections")
+    network_interface_statistics = _safe_call_to_psutil(net_if_stats, "net_if_stats")
+    return format_network(active_socket_connections, network_interface_statistics)
 
 # users_info.py
-def get_users():# Return users currently connected
+def get_logged_in_users():
     try:
         return users()
     except AccessDenied:
         logger.error("Access denied getting users")
-        return "N/A"
+        return DATA_UNAVAILABLE
 
-def get_boot_time():# Return the system boot time expressed in seconds since the epoch (seconds since January 1, 1970, at midnight UTC)
-    try:
-        return boot_time()
-    except AccessDenied:
-        logger.error("Access denied getting boot_time")
-        return "N/A"
-
-def information_users():
-    users_info = _safe_call_to_psutil(users, "users")
-    boot_time_info = _safe_call_to_psutil(boot_time, "boot_time")
-    return format_users(users_info, boot_time_info)
+def collect_users_report():
+    current_logged_in_users = _safe_call_to_psutil(users, "users")
+    last_system_boot_time = _safe_call_to_psutil(boot_time, "boot_time")
+    return format_users(current_logged_in_users, last_system_boot_time)
