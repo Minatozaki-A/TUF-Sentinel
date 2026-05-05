@@ -107,7 +107,7 @@ def format_memory(virtual, swap) -> str:
     return "\n".join(lines)
 
 
-def format_disks(partitions, usage, io_counters) -> str:
+def format_disks(partitions, usage_first_disk, usage_second_disk, io_counters) -> str:
     lines = ["Disks"]
 
     lines.append("Partitions")
@@ -119,13 +119,23 @@ def format_disks(partitions, usage, io_counters) -> str:
         for p in partitions:
             lines.append(f"  {p.device} → {p.mountpoint} ({p.fstype})")
 
-    lines.append("Usage (/)")
-    if usage == "N/A":
+    lines.append("Usage first disk")
+    if usage_first_disk == "N/A":
         lines.append("  N/A")
     else:
-        lines.append(f"  Total: {_bytes_to_human(usage.total)}")
-        lines.append(f"  Used: {_bytes_to_human(usage.used)} — {int(usage.percent)}% {_percent_emoji(usage.percent)}")
-        lines.append(f"  Free: {_bytes_to_human(usage.free)}")
+        lines.append(f"  Total: {_bytes_to_human(usage_first_disk.total)}")
+        lines.append(f"  Used: {_bytes_to_human(usage_first_disk.used)} — {int(usage_first_disk.percent)}%"
+                        f"{_percent_emoji(usage_first_disk.percent)}")
+        lines.append(f"  Free: {_bytes_to_human(usage_first_disk.free)}")
+
+    lines.append("Usage second disk")
+    if usage_second_disk == "N/A":
+        lines.append("  N/A")
+    else:
+        lines.append(f"  Total: {_bytes_to_human(usage_second_disk.total)}")
+        lines.append(f"  Used: {_bytes_to_human(usage_second_disk.used)} — {int(usage_second_disk.percent)}%"
+                        f"{_percent_emoji(usage_second_disk.percent)}")
+        lines.append(f"  Free: {_bytes_to_human(usage_second_disk.free)}")
 
     lines.append("I/O")
     if io_counters is None or io_counters == "N/A":
