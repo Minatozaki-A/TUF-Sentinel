@@ -23,8 +23,9 @@ def _percent_emoji(percent: float) -> str:
     return "🔴"
 
 
-# ── Existentes ────────────────────────────────────────────────────────────────
+# Existentes
 
+""" 
 def format_cpu_status(percent, freq_current, freq_max):
     # Lógica de color para carga
     if percent < 60:
@@ -39,7 +40,7 @@ def format_cpu_status(percent, freq_current, freq_max):
     max_ghz = freq_max / 1000 if freq_max > 1000 else freq_max
 
     return f"{int(percent)}% {emoji}\nFrecuencia: {curr_ghz:.1f} GHz (Máx: {max_ghz:.1f} GHz)"
-
+"""
 
 def get_formatted_uptime(boot_timestamp):
     # Calcula la diferencia entre ahora y el arranque
