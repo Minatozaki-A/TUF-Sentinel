@@ -38,23 +38,25 @@ def collect_memory_report():
     return format_memory(physical_memory_stats, swap_space_stats)
 
 
-# disks_info.py
+# disks_info bajo revision
 
 def get_disk_space_usage(path: str):
+    if path is None or path == "":
+        return DATA_UNAVAILABLE
     try:
         return disk_usage(path)
     except AccessDenied:
         logger.error("Access denied getting disk_usage(path=%s)", path)
         return DATA_UNAVAILABLE
 
-def collect_disk_report(path: str):
+def collect_disk_report(path_mount_point_1: str = None, path_mount_point_2: str = None):
     disk_mount_points = _safe_call_to_psutil(disk_partitions, "disk_partitions")
-    disk_space_at_path = get_disk_space_usage(path)
+    disk_space_at_path = get_disk_space_usage(path_mount_point_1)
+    disk_space_at_path_2 = get_disk_space_usage(path_mount_point_2)
     disk_read_write_counters = _safe_call_to_psutil(disk_io_counters, "disk_io_counters")
-    return format_disks(disk_mount_points, disk_space_at_path, disk_read_write_counters)
+    return format_disks(disk_mount_points, disk_space_at_path, disk_space_at_path_2 , disk_read_write_counters)
 
 # sensors_info
-
 def collect_sensors_report():
     component_temperatures = _safe_call_to_psutil(sensors_temperatures, "sensors_temperatures")
     cooling_fan_speeds = _safe_call_to_psutil(sensors_fans, "sensors_fans")
