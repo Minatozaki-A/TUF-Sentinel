@@ -27,10 +27,9 @@ async def memory_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         collect_memory_report()
     )
 
-
 async def disks_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        collect_disk_report("/", "/mnt/seulgi")
+        collect_disk_report()
     )
 
 async def sensors_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
