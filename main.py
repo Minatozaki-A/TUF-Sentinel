@@ -1,16 +1,16 @@
 import logging
-from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler
-import os
-from services.monitor import collect_cpu_report, collect_memory_report, collect_disk_report, collect_sensors_report, collect_network_report, collect_users_report
+from services.monitor import *
+from utils.config import get_user_id, get_token
+
 
 logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s  %(levelname)-8s  %(message)s",
                         datefmt="%H:%M:%S")
-load_dotenv()
-token = os.getenv("TOKEN")
-id_user = int(os.getenv("USER_ID"))
+
+token = get_token()
+id_user = get_user_id()
 
 only_me = filters.User(user_id=id_user)
 
