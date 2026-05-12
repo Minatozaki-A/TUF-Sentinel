@@ -47,7 +47,6 @@ async def users_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         collect_users_report()
     )
 
-
 app = ApplicationBuilder().token(token).build()
 
 app.add_handler(MessageHandler(only_me & filters.TEXT & ~filters.COMMAND, hello))
@@ -58,5 +57,6 @@ app.add_handler(CommandHandler("disks", disks_info, filters=only_me))
 app.add_handler(CommandHandler("sensors", sensors_info, filters=only_me))
 app.add_handler(CommandHandler("network", network_info, filters=only_me))
 app.add_handler(CommandHandler("users", users_info, filters=only_me))
+
 
 app.run_polling()
