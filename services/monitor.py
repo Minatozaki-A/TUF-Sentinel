@@ -16,13 +16,26 @@ from psutil import (
 logger = logging.getLogger(__name__)
 DATA_UNAVAILABLE = "N/A"
 
-def _safe_call_to_psutil(func, label: str):
+def _safe_call_to_psutil(func, label: str, *args, **kwargs):
     try:
-        return func()
+        return func(*args, **kwargs)
     except AccessDenied:
         logger.error("Access denied getting %s", label)
         return DATA_UNAVAILABLE
 
+def _get_disk_space_usage(path: str) :
+    if not path:
+        return DATA_UNAVAILABLE
+    if path is None:
+        return DATA_UNAVAILABLE
+    if not Path(path).exists():
+        logger.warning("Path does not exist: %s", path)
+        return DATA_UNAVAILABLE
+    try:
+        return disk_usage(path)
+    except AccessDenied:
+        logger.error("Access denied: disk_usage(path=%s)", path)
+        return DATA_UNAVAILABLE
 
 # cpu_info
 
