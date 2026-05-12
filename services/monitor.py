@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from tools.provisional_name import find_ssd_mount_point
+from tools.disk_mount import find_mount_point_by_label
 from utils.config import get_label_mount
 from utils.helpers import *
 from psutil import (
@@ -61,7 +61,7 @@ def collect_disk_report():
     disk_read_write_counters = _safe_call_to_psutil(disk_io_counters, "disk_io_counters")
 
     disk_space_at_path = _get_disk_space_usage("/")
-    label_mount_point = find_ssd_mount_point(get_label_mount())
+    label_mount_point = find_mount_point_by_label(get_label_mount())
     disk_space_at_path_2 = _get_disk_space_usage(label_mount_point)
 
     return format_disks(disk_mount_points, disk_space_at_path, disk_space_at_path_2 , disk_read_write_counters)
