@@ -43,16 +43,44 @@ async def users_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         collect_users_report()
     )
 
-app = ApplicationBuilder().token(token).build()
+# tarea automática
+async def send_report(context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(
+        chat_id= ID_USER,
+        text=collect_general_report(),
 
-app.add_handler(MessageHandler(only_me & filters.TEXT & ~filters.COMMAND, hello))
-app.add_handler(CommandHandler("hello", hello, filters=only_me))
-app.add_handler(CommandHandler("memory", memory_info, filters=only_me))
-app.add_handler(CommandHandler("cpu", cpu_info, filters=only_me))
-app.add_handler(CommandHandler("disks", disks_info, filters=only_me))
-app.add_handler(CommandHandler("sensors", sensors_info, filters=only_me))
-app.add_handler(CommandHandler("network", network_info, filters=only_me))
-app.add_handler(CommandHandler("users", users_info, filters=only_me))
+    )
+
+async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Mensaje recibido")
+
+# comando opcional para probar
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Bot iniciado para probar.")
 
 
-app.run_polling()
+def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+
+    app.add_handler(MessageHandler(ONLY_ME & filters.TEXT & ~filters.COMMAND, handle_text))
+
+    app.add_handler(CommandHandler("memory", memory_info, filters=ONLY_ME))
+    app.add_handler(CommandHandler("cpu", cpu_info, filters=ONLY_ME))
+    app.add_handler(CommandHandler("disks", disks_info, filters=ONLY_ME))
+    app.add_handler(CommandHandler("sensors", sensors_info, filters=ONLY_ME))
+    app.add_handler(CommandHandler("network", network_info, filters=ONLY_ME))
+    app.add_handler(CommandHandler("users", users_info, filters=ONLY_ME))
+    app.add_handler(CommandHandler("start", start))
+
+    # ejecutar cada hora
+    app.job_queue.run_repeating(
+        callback=send_report,
+        interval=3600,  # segundos
+        first=10  # empieza después de 10 segundos,
+    )
+
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
