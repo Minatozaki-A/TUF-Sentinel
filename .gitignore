@@ -76,7 +76,7 @@ cmake-build-*/
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
 
-# File-based project format
+# File-based project format_string
 *.iws
 
 # IntelliJ
@@ -270,7 +270,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+:rtype: str | sdiskusage
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -313,5 +313,5 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm
-GEMINI.md
 .claude
+.antigravitycli
