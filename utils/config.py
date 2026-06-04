@@ -4,20 +4,16 @@ import dotenv
 
 dotenv.load_dotenv()
 
-def get_user_id():
-    try:
-        return int(os.getenv("USER_ID"))
-    except KeyError:
+def get_user_id(user_id: str) -> int | None:
+    value = os.getenv(user_id)
+
+    if value is None:
         return None
 
-def get_token():
     try:
-        return os.getenv("TOKEN")
-    except KeyError:
+        return int(value)
+    except TypeError:
         return None
 
-def get_label_mount():
-    try:
-        return os.getenv("LABEL_MOUNT")
-    except KeyError:
-        return None
+def collect_info_by_env(env_name: str) -> str | None:
+    return os.getenv(env_name)
