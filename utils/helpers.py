@@ -197,7 +197,63 @@ def format_network(connections, if_stats) -> str:
     return "\n".join(lines)
 
 
-def format_users(users, boot_time) -> str:
+def format_general(users, boot_time, virtual, temperatures, fans, battery) -> str:
+    lines = ["System Overview"]
+
+    if boot_time != "N/A":
+        lines.append(f"Uptime: {_get_formatted_uptime(boot_time)}")
+    else:
+        lines.append("Uptime: N/A")
+
+    if users == "N/A":
+        lines.append("Users: N/A")
+    elif not users:
+        lines.append("Users: none")
+    else:
+        names = ", ".join(u.name for u in users)
+        lines.append(f"Users: {names}")
+
+    lines.append("Memory")
+    if virtual == "N/A":
+        lines.append("  N/A")
+    else:
+        lines.append(f"  RAM: {_bytes_to_human(virtual.used)} / {_bytes_to_human(virtual.total)} — {int(virtual.percent)}% {_percent_emoji(virtual.percent)}")
+
+    lines.append("Temperatures")
+    if temperatures == "N/A":
+        lines.append("  N/A")
+    elif not temperatures:
+        lines.append("  No data")
+    else:
+        for name, readings in temperatures.items():
+            for r in readings:
+                label = r.label if r.label else name
+                lines.append(f"  {label}: {r.current:.1f}°C")
+
+    lines.append("Fans")
+    if fans == "N/A":
+        lines.append("  N/A")
+    elif not fans:
+        lines.append("  No fans detected")
+    else:
+        for name, readings in fans.items():
+            for r in readings:
+                label = r.label if r.label else name
+                lines.append(f"  {label}: {r.current} RPM")
+
+    lines.append("Battery")
+    if battery is None:
+        lines.append("  No battery")
+    elif battery == "N/A":
+        lines.append("  N/A")
+    else:
+        status = "Plugged in" if battery.power_plugged else "On battery"
+        lines.append(f"  {int(battery.percent)}% {_percent_emoji(battery.percent)} — {status}")
+
+    return "\n".join(lines)
+
+
+def format_users(users , boot_time) -> str:
     lines = ["Users"]
 
     if users == "N/A":
