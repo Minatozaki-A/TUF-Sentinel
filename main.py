@@ -2,20 +2,16 @@ import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler
 from services.monitor import *
-from utils.config import get_user_id, get_token
+from utils.config import get_user_id, collect_info_by_env
 
 
 logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s  %(levelname)-8s  %(message)s",
                         datefmt="%H:%M:%S")
 
-token = get_token()
-id_user = get_user_id()
-
-only_me = filters.User(user_id=id_user)
-
-async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(f'Hello {update.effective_user.first_name}')
+TOKEN = collect_info_by_env("TOKEN")
+ID_USER = get_user_id("USER_ID")
+ONLY_ME = filters.User(user_id=ID_USER)
 
 async def cpu_info(update: Update, context: ContextTypes.DEFAULT_TYPE)-> None:
     await update.message.reply_text(
