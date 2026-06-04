@@ -2,9 +2,6 @@
 import time
 from datetime import timedelta
 
-
-# ── Privadas ──────────────────────────────────────────────────────────────────
-
 def _bytes_to_human(n: int) -> str:
     _UNITS = ("B", "KB", "MB", "GB", "TB")
     value = float(n)
@@ -23,26 +20,7 @@ def _percent_emoji(percent: float) -> str:
     return "🔴"
 
 
-# Existentes
-
-""" 
-def format_cpu_status(percent, freq_current, freq_max):
-    # Lógica de color para carga
-    if percent < 60:
-        emoji = "🟢"
-    elif percent <= 85:
-        emoji = "🟡"
-    else:
-        emoji = "🔴"
-
-    # Formateo de frecuencia a GHz
-    curr_ghz = freq_current / 1000 if freq_current > 1000 else freq_current
-    max_ghz = freq_max / 1000 if freq_max > 1000 else freq_max
-
-    return f"{int(percent)}% {emoji}\nFrecuencia: {curr_ghz:.1f} GHz (Máx: {max_ghz:.1f} GHz)"
-"""
-
-def get_formatted_uptime(boot_timestamp):
+def _get_formatted_uptime(boot_timestamp):
     # Calcula la diferencia entre ahora y el arranque
     uptime_seconds = time.time() - boot_timestamp
     uptime_delta = timedelta(seconds=uptime_seconds)
@@ -54,7 +32,7 @@ def get_formatted_uptime(boot_timestamp):
     return f"{hours}h {minutes}m"
 
 
-# ── Formateadores por grupo ───────────────────────────────────────────────────
+# Formateadores por grupo
 
 def format_cpu(percent, freq, stats) -> str:
     lines = ["CPU"]
@@ -107,7 +85,8 @@ def format_memory(virtual, swap) -> str:
     return "\n".join(lines)
 
 
-def format_disks(partitions, usage_first_disk, usage_second_disk, io_counters) -> str:
+def format_disks(partitions, usage_first_disk, usage_second_disk,
+                io_counters) -> str:
     lines = ["Disks"]
 
     lines.append("Partitions")
@@ -233,6 +212,6 @@ def format_users(users, boot_time) -> str:
     if boot_time == "N/A":
         lines.append("Uptime: N/A")
     else:
-        lines.append(f"Uptime: {get_formatted_uptime(boot_time)}")
+        lines.append(f"Uptime: {_get_formatted_uptime(boot_time)}")
 
     return "\n".join(lines)
